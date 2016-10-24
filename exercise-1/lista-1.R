@@ -5,9 +5,13 @@ b <- 3
 
 #Exercises
 
+# 1
 z <- x ** a ** b
 z <- (x ^ a) ^ b
 z <- 3*(x^3) + 2*(x^2) + 6*x + 1
-z
+z <- 0
 z <- z + 1
+
+# 2
+seq
 

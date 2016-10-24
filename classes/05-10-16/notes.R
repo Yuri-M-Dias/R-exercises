@@ -65,3 +65,4 @@ quantile(x, c(0.1, 0.25, 0.40, 0.5, 0.75, 0.90))
 
 summary(x)
 summary(x)[1]
+

@@ -1,3 +1,6 @@
 library("rjson")
 
-json_data <- fromJSON(file="https://data.nasa.gov/api/views/gh4g-9sfh/rows.json?accessType=DOWNLOAD")
+json_data <- fromJSON(file="R-exercises/finalProject/metoriteDate.json")
+summary(json_data)
+sapply(json_data, class)
+plot(json_data)
