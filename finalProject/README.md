@@ -1,6 +1,16 @@
 Meteorite Data
 ================
 
+Trabalho Final
+--------------
+
+Para o trabalho final(mandar uma tarball/zip):
+
+-   Relatório -&gt; PDF, como pegou os dados, quais tipos de dados, se teve que classificar
+-   Código .R -&gt; source("file.R")
+-   Figuras (plots)
+-   E os dados em si
+
 Objective
 ---------
 

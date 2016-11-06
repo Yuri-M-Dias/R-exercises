@@ -7,6 +7,15 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+## Trabalho Final
+
+Para o trabalho final(mandar uma tarball/zip):
+
+* Relatório -> PDF, como pegou os dados, quais tipos de dados, se teve que classificar
+* Código .R -> source("file.R")
+* Figuras (plots)
+* E os dados em si
+
 ## Objective
 
 This is a repository to keep my sample project, in which i'll try to analyze the data from some meteorite data published by NASA. I'm new to R, so bear with me for a few rookie mistakes.
