@@ -64,8 +64,6 @@ formatedData <- readData(meteoritesData, metaData, dataColumnsNames, numberOfCol
 #Strips NA
 massData <- na.omit(formatedData$`mass (g)`)
 
-hist(massData)
-
 normalizeVector <- function(dataVector) {
   normalizedData <- (dataVector - min(dataVector)) / (max(dataVector)-min(dataVector))
   return(normalizedData)
@@ -76,3 +74,4 @@ normalizedMassData <- normalizeVector(massData)
 summary(normalizedMassData)
 
 hist(normalizedMassData)
+boxplot(massData, outline = F)
