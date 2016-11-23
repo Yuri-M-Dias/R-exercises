@@ -29,3 +29,6 @@ Pretendo fazer algumas estatísticas com os dados encontrados, como por exemplo,
 se o tamanho dos meteoritos está relacionado com a latitude/longitude de onde caíram,
 e quais são os lugares em que mais meteoritos caíram.
 Tudo está sendo versionado, e está disponível no [GitHub](https://github.com/Yuri-M-Dias/R-exercises)
+
+### Trabalho 2
+Fazer uma função qualquer que possa ser executada como source("programa.R")

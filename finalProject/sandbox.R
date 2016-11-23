@@ -19,6 +19,9 @@ DATA_FILE_PATH <- 'data/metoriteDate.json'
 # Just testing out how constants work
 #lockBinding("DATA_FILE_PATH", globalenv())
 
+currentPwd <- getwd()
+cat("Saving graphics to: ", currentPwd, sep = "")
+
 #Functions
 readDimension <- function(element, position) {
   if (is.null(element[[position]])) {
@@ -30,7 +33,7 @@ readDimension <- function(element, position) {
 readData <- function(data, metaData, dataColumnsNames, numberOfColumns) {
   dataFrame <- data.frame(sapply(1:numberOfColumns,
                                  function(columnIndex) {
-                                   print(paste("Variable:", dataColumnsNames[columnIndex] , sep = " "))
+                                   cat("Variable:", dataColumnsNames[columnIndex] , sep = " ")
                                    sapply(data, function(element)
                                      readDimension(element, columnIndex))
                                  }),
