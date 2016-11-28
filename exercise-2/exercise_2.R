@@ -1,6 +1,4 @@
-# Ambient configuration
-currentPwd <- getwd()
-print(paste("Saving graphics to: ", currentPwd, sep = ""))
+# Simples função para calcular o máximo de um vetor
 nameAndData <- "Yuri Matheus Dias Pereira - 23/11/2016"
 
 maiorValor <- function(lista){
@@ -13,7 +11,8 @@ maiorValor <- function(lista){
   return(maximo)
 }
 
-listaExemplo <- 0:100
+listaExemplo <- rnorm(1000, 5, 1)
 valorCalculado <- maiorValor(listaExemplo)
-valorCalculado <- maiorValor(listaExemplo)
+valorCalculadoNativo <- max(listaExemplo)
+cat(valorCalculado, " = ", valorCalculadoNativo)
 
