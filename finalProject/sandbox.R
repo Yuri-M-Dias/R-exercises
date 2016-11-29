@@ -12,6 +12,7 @@ library("gdata")
 #library("rgdal")
 # better graphics, supposedly
 library("ggplot2")
+library("maptools")
 
 # Constants
 # Probably better as an argument?
@@ -20,7 +21,7 @@ DATA_FILE_PATH <- 'data/metoriteDate.json'
 #lockBinding("DATA_FILE_PATH", globalenv())
 
 currentPwd <- getwd()
-cat("Saving graphics to: ", currentPwd, sep = "")
+cat("Saving graphics to: ", currentPwd, "\n", sep = "")
 
 #Functions
 readDimension <- function(element, position) {
@@ -33,7 +34,7 @@ readDimension <- function(element, position) {
 readData <- function(data, metaData, dataColumnsNames, numberOfColumns) {
   dataFrame <- data.frame(sapply(1:numberOfColumns,
                                  function(columnIndex) {
-                                   cat("Variable:", dataColumnsNames[columnIndex] , sep = " ")
+                                   cat("Variable:", dataColumnsNames[columnIndex],"\n", sep = " ")
                                    sapply(data, function(element)
                                      readDimension(element, columnIndex))
                                  }),
@@ -49,6 +50,7 @@ readData <- function(data, metaData, dataColumnsNames, numberOfColumns) {
 }
 
 # Reads data
+cat("Reading data from: ", DATA_FILE_PATH, "\n")
 rawJsonData <- fromJSON(file = DATA_FILE_PATH)
 
 metaData <- rawJsonData[['meta']]
@@ -78,3 +80,6 @@ summary(normalizedMassData)
 
 hist(normalizedMassData)
 boxplot(massData, outline = F)
+
+worldShape <- readShapePoly("data/ne_110m_land.shp")
+
