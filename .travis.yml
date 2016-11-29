@@ -1,9 +1,9 @@
-sudo: fals
 language: r
+sudo: false
 before_install:
-	- cd finalProject/
+- cd finalProject/
 install:
-	- R -e "0" --args --bootstrap-packrat
+- R -e "0" --args --bootstrap-packrat
 cache:
-	directories: $TRAVIS_BUILD_DIR/packrat/
-	packages: true
+  directories: $TRAVIS_BUILD_DIR/packrat/
+  packages: true
