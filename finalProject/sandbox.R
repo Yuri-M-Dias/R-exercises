@@ -20,6 +20,9 @@ DATA_FILE_PATH <- 'data/metoriteDate.json'
 # Just testing out how constants work
 #lockBinding("DATA_FILE_PATH", globalenv())
 
+this.dir <- dirname(parent.frame(2)$ofile)
+setwd(this.dir)
+
 currentPwd <- getwd()
 cat("Saving graphics to: ", currentPwd, "\n", sep = "")
 
@@ -44,7 +47,7 @@ readData <- function(data, metaData, dataColumnsNames, numberOfColumns) {
   # Formats latitude and longitude
   dataFrame$reclat <- as.numeric(dataFrame$reclat)
   dataFrame$reclong <- as.numeric(dataFrame$reclong)
-  dataFrame$'mass (g)' <- as.numeric(dataFrame$'mass (g)')
+  dataFrame$mass <- as.numeric(dataFrame$'mass (g)')
   dataFrame$year <- as.Date(dataFrame$year)
   return(dataFrame)
 }
@@ -67,7 +70,7 @@ dataColumnsNames <- unlist(sapply(1:numberOfColumns,
 formatedData <- readData(meteoritesData, metaData, dataColumnsNames, numberOfColumns)
 
 #Strips NA
-massData <- na.omit(formatedData$`mass (g)`)
+massData <- na.omit(formatedData$mass)
 
 normalizeVector <- function(dataVector) {
   normalizedData <- (dataVector - min(dataVector)) / (max(dataVector)-min(dataVector))
@@ -80,6 +83,7 @@ summary(normalizedMassData)
 
 hist(normalizedMassData)
 boxplot(massData, outline = F)
+years <- na.omit(formatedData$year)
 
 worldShape <- readShapePoly("data/ne_110m_land.shp")
 
