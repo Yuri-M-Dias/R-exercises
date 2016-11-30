@@ -1,5 +1,7 @@
 language: r
 sudo: false
+r_github_packages:
+- hadley/devtools
 before_install:
 - cd finalProject/
 install:
