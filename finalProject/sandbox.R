@@ -20,6 +20,7 @@ DATA_FILE_PATH <- 'data/metoriteDate.json'
 # Just testing out how constants work
 #lockBinding("DATA_FILE_PATH", globalenv())
 
+# Sets current dir as working
 this.dir <- dirname(parent.frame(2)$ofile)
 setwd(this.dir)
 
@@ -49,7 +50,14 @@ readData <- function(data, metaData, dataColumnsNames, numberOfColumns) {
   dataFrame$reclong <- as.numeric(dataFrame$reclong)
   dataFrame$mass <- as.numeric(dataFrame$'mass (g)')
   dataFrame$year <- as.Date(dataFrame$year)
+  #Strips all rows with a single NA
+  dataFrame <- dataFrame[complete.cases(dataFrame),]
   return(dataFrame)
+}
+
+normalizeVector <- function(dataVector) {
+  normalizedData <- (dataVector - min(dataVector)) / (max(dataVector)-min(dataVector))
+  return(normalizedData)
 }
 
 # Reads data
@@ -68,14 +76,9 @@ dataColumnsNames <- unlist(sapply(1:numberOfColumns,
                                     return(dataColumns[[element]]$name)
                                   }))
 formatedData <- readData(meteoritesData, metaData, dataColumnsNames, numberOfColumns)
+cat("Data file read with success\n")
 
-#Strips NA
-massData <- na.omit(formatedData$mass)
-
-normalizeVector <- function(dataVector) {
-  normalizedData <- (dataVector - min(dataVector)) / (max(dataVector)-min(dataVector))
-  return(normalizedData)
-}
+massData <- formatedData$mass
 
 normalizedMassData <- normalizeVector(massData)
 
@@ -83,7 +86,27 @@ summary(normalizedMassData)
 
 hist(normalizedMassData)
 boxplot(massData, outline = F)
-years <- na.omit(formatedData$year)
+
+years <- formatedData$year
 
 worldShape <- readShapePoly("data/ne_110m_land.shp")
 
+aggregatedYears <- aggregate(x = years,
+                             by = list(year = substr(years, 0, 4)),
+                             FUN = length)
+aggregatedYears$year <- as.numeric(aggregatedYears$year)
+aggregatedYears <- subset(aggregatedYears, year < 2016 & year > 1985)
+
+attach(aggregatedYears)
+
+pdf("resultado_1.pdf")
+par(mfrow = c(1, 1))
+
+plot(year, x)
+otherVariable1 <- year ** 9
+model <- lm(x ~ year + otherVariable1)
+lines(year, predict(model), col=3)
+
+dev.off()
+
+detach(aggregatedYears)
