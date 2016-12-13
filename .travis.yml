@@ -4,7 +4,10 @@ before_install:
 - cd finalProject/
 install:
 - Rscript -e 'install.packages("devtools", repos = "http://cran.rstudio.com")'
+- Rscript -e 'devtools::install_deps("pkg")'
 - R -e "0" --args --bootstrap-packrat
+script:
+- Rscript -e 'devtools::check("finalProject")'
 cache:
   directories: $TRAVIS_BUILD_DIR/packrat/
   packages: true
