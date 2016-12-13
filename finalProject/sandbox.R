@@ -15,7 +15,6 @@ library("ggplot2")
 library("maptools")
 
 # Constants
-# Probably better as an argument?
 DATA_FILE_PATH <- 'data/metoriteDate.json'
 # Just testing out how constants work
 #lockBinding("DATA_FILE_PATH", globalenv())
@@ -44,7 +43,6 @@ readData <- function(data, metaData, dataColumnsNames, numberOfColumns) {
                                  }),
                           stringsAsFactors = FALSE)
   names(dataFrame) <- dataColumnsNames
-  # TODO: make this another function, just to separate these transformations
   # Formats latitude and longitude
   dataFrame$reclat <- as.numeric(dataFrame$reclat)
   dataFrame$reclong <- as.numeric(dataFrame$reclong)
@@ -76,21 +74,25 @@ dataColumnsNames <- unlist(sapply(1:numberOfColumns,
                                     return(dataColumns[[element]]$name)
                                   }))
 formatedData <- readData(meteoritesData, metaData, dataColumnsNames, numberOfColumns)
+worldShape <- readShapePoly("data/ne_110m_land.shp")
 cat("Data file read with success\n")
 
 massData <- formatedData$mass
-
 normalizedMassData <- normalizeVector(massData)
-
 summary(normalizedMassData)
-
 hist(normalizedMassData)
 boxplot(massData, outline = F)
 
+formatedData.coordinates = formatedData[c("reclong", "reclat")]
+coordinates(formatedData.coordinates) <- ~reclong + reclat
+plot(formatedData.coordinates)
+
+biggerMeteorites <- formatedData$mass > 5000
+plot(formatedData.coordinates[biggerMeteorites,], col=2, pch=7)
+plot(worldShape, add=T)
+
+# Aqui tem o código do exercício 3
 years <- formatedData$year
-
-worldShape <- readShapePoly("data/ne_110m_land.shp")
-
 aggregatedYears <- aggregate(x = years,
                              by = list(year = substr(years, 0, 4)),
                              FUN = length)
@@ -98,15 +100,16 @@ aggregatedYears$year <- as.numeric(aggregatedYears$year)
 aggregatedYears <- subset(aggregatedYears, year < 2016 & year > 1985)
 
 attach(aggregatedYears)
-
-pdf("resultado_1.pdf")
 par(mfrow = c(1, 1))
 
-plot(year, x)
-otherVariable1 <- year ** 9
-model <- lm(x ~ year + otherVariable1)
+plot(year, x, xlab = 'Ano', ylab = 'Meteoritos encontrados', t='l')
+otherVariable <- year ** 3
+model <- lm(x ~ year * otherVariable)
 lines(year, predict(model), col=3)
-
-dev.off()
+legend(max(year) - 8, max(x) - 2, c("Dados", "Predição"),
+       col = c(9, 3), lty = c(1,1), bty = 'l')
+summary(year)
+summary(x)
+summary(model)
 
 detach(aggregatedYears)
