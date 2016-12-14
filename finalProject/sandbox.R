@@ -76,10 +76,8 @@ dataColumnsNames <- unlist(sapply(1:numberOfColumns,
                                     return(dataColumns[[element]]$name)
                                   }))
 formatedData <- readData(meteoritesData, metaData, dataColumnsNames, numberOfColumns)
-worldShape <- readShapePoly("data/ne_110m_land.shp")
+worldShape <- readShapePoly("data/world-50m/ne_50m_admin_0_countries.shp")
 cat("Data file read with success\n")
-
-par(mfrow = c(1, 2))
 
 massData <- formatedData$mass
 normalizedMassData <- normalizeVector(massData)
@@ -87,13 +85,18 @@ summary(normalizedMassData)
 hist(normalizedMassData)
 boxplot(massData, outline = F)
 
-formatedData.coordinates = formatedData[c("reclong", "reclat")]
-coordinates(formatedData.coordinates) <- ~reclong + reclat
-plot(formatedData.coordinates)
+# Primeiro plot: Localização geográfica das quedas
+formatedData$coordinates = formatedData[c("reclong", "reclat")]
+coordinates(formatedData$coordinates) <- ~reclong + reclat
+plot(formatedData$coordinates)
 
 biggerMeteorites <- formatedData$mass > 5000
-plot(formatedData.coordinates[biggerMeteorites,], col=2, pch=7)
-plot(worldShape, add=T)
+plot(worldShape)
+points(formatedData$coordinates[biggerMeteorites,], col=3, pch=19, cex=0.5, lwd=0.1)
+# O plano é fazer isso de acordo com a massa
+
+# Terceiro plot: boxplot de acordo algumas classes agrupadas por número de vezes que apareceram
+# Outro pela média de tamanho/classe
 
 # Aqui tem o código do exercício 3
 years <- formatedData$year
