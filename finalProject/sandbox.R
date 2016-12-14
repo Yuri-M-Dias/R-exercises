@@ -18,6 +18,8 @@ library("maptools")
 DATA_FILE_PATH <- 'data/metoriteDate.json'
 # Just testing out how constants work
 #lockBinding("DATA_FILE_PATH", globalenv())
+# Allows fully use of maptools
+gpclibPermit()
 
 # Sets current dir as working
 this.dir <- dirname(parent.frame(2)$ofile)
@@ -77,6 +79,8 @@ formatedData <- readData(meteoritesData, metaData, dataColumnsNames, numberOfCol
 worldShape <- readShapePoly("data/ne_110m_land.shp")
 cat("Data file read with success\n")
 
+par(mfrow = c(1, 2))
+
 massData <- formatedData$mass
 normalizedMassData <- normalizeVector(massData)
 summary(normalizedMassData)
@@ -100,7 +104,6 @@ aggregatedYears$year <- as.numeric(aggregatedYears$year)
 aggregatedYears <- subset(aggregatedYears, year < 2016 & year > 1985)
 
 attach(aggregatedYears)
-par(mfrow = c(1, 1))
 
 plot(year, x, xlab = 'Ano', ylab = 'Meteoritos encontrados', t='l')
 otherVariable <- year ** 3
