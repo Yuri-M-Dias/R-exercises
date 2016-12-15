@@ -11,7 +11,7 @@ library("gdata")
 # Some more read options
 #library("rgdal")
 # better graphics, supposedly
-library("ggplot2")
+#library("ggplot2")
 library("maptools")
 
 # Constants
@@ -22,8 +22,8 @@ DATA_FILE_PATH <- 'data/metoriteDate.json'
 gpclibPermit()
 
 # Sets current dir as working
-this.dir <- dirname(parent.frame(2)$ofile)
-setwd(this.dir)
+#this.dir <- dirname(parent.frame(2)$ofile)
+#setwd(this.dir)
 
 currentPwd <- getwd()
 cat("Saving graphics to: ", currentPwd, "\n", sep = "")
@@ -37,13 +37,15 @@ readDimension <- function(element, position) {
 }
 
 readData <- function(data, metaData, dataColumnsNames, numberOfColumns) {
-  dataFrame <- data.frame(sapply(1:numberOfColumns,
-                                 function(columnIndex) {
-                                   cat("Variable:", dataColumnsNames[columnIndex],"\n", sep = " ")
-                                   sapply(data, function(element)
-                                     readDimension(element, columnIndex))
-                                 }),
-                          stringsAsFactors = FALSE)
+  dataFrame <- data.frame(sapply(
+    1:numberOfColumns,
+    function(columnIndex) {
+      cat("Variable:", dataColumnsNames[columnIndex],"\n", sep = " ")
+      sapply(data, function(element)
+        readDimension(element, columnIndex))
+    }),
+    stringsAsFactors = FALSE
+  )
   names(dataFrame) <- dataColumnsNames
   # Formats latitude and longitude
   dataFrame$reclat <- as.numeric(dataFrame$reclat)
@@ -71,10 +73,12 @@ dataColumns <- metaData[['view']][['columns']]
 numberOfColumns <- length(dataColumns) - 1
 
 # do the extraction and assembly
-dataColumnsNames <- unlist(sapply(1:numberOfColumns,
-                                  function(element) {
-                                    return(dataColumns[[element]]$name)
-                                  }))
+dataColumnsNames <- unlist(sapply(
+  1:numberOfColumns,
+  function(element) {
+    return(dataColumns[[element]]$name)
+  })
+)
 formatedData <- readData(meteoritesData, metaData, dataColumnsNames, numberOfColumns)
 worldShape <- readShapePoly("data/world-50m/ne_50m_admin_0_countries.shp")
 cat("Data file read with success\n")
@@ -86,34 +90,57 @@ hist(normalizedMassData)
 boxplot(massData, outline = F)
 
 # Primeiro plot: Localização geográfica das quedas
+#pdf("plot1.pdf")
 formatedData$coordinates = formatedData[c("reclong", "reclat")]
 coordinates(formatedData$coordinates) <- ~reclong + reclat
-plot(formatedData$coordinates)
 
 biggerMeteorites <- formatedData$mass > 5000
 plot(worldShape)
-points(formatedData$coordinates[biggerMeteorites,], col=3, pch=19, cex=0.5, lwd=0.1)
+pointsSize <- biggerMeteorites / max(biggerMeteorites)
+points(formatedData$coordinates[biggerMeteorites,], col=3, pch=19, cex=pointsSize)
 # O plano é fazer isso de acordo com a massa
 
-# Terceiro plot: boxplot de acordo algumas classes agrupadas por número de vezes que apareceram
-# Outro pela média de tamanho/classe
+# Segundo plot: boxplot de acordo algumas classes agrupadas por número de vezes que apareceram
+#pdf("plot2.pdf")
+classes <- unique(formatedData$recclass)
+aggregatedClasses <- aggregate(
+  formatedData$recclass,
+  by = list(class = formatedData$recclass),
+  FUN = length
+)
+orderedAggregatedClasses <- aggregatedClasses[order(aggregatedClasses$x, decreasing = TRUE),]
+tenMostCommonClasses <- head(orderedAggregatedClasses, 10)
+classBarPlot <- barplot(tenMostCommonClasses$x, names.arg=tenMostCommonClasses$class,
+        horiz = T, space = 0.1, main = "Classes mais comuns de meteoritos encontradas")
+text(0, classBarPlot, labels = tenMostCommonClasses$x, cex=.8, pos=4)
+
+# Terceiro plot: meteoritos pela média de tamanho/classe
+#pdf("plot3.pdf")
+aggregatedClassByMass <- aggregate(
+  x = formatedData,
+  by = list(class = formatedData$recclass, mass = formatedData$mass),
+  FUN = mean
+)
 
 # Aqui tem o código do exercício 3
+#pdf("plot4.pdf")
 years <- formatedData$year
-aggregatedYears <- aggregate(x = years,
-                             by = list(year = substr(years, 0, 4)),
-                             FUN = length)
+aggregatedYears <- aggregate(
+  x = years,
+  by = list(year = substr(years, 0, 4)),
+  FUN = length
+)
 aggregatedYears$year <- as.numeric(aggregatedYears$year)
-aggregatedYears <- subset(aggregatedYears, year < 2016 & year > 1985)
+aggregatedYears <- subset(aggregatedYears, year < 2012 & year > 1985)
 
 attach(aggregatedYears)
 
-plot(year, x, xlab = 'Ano', ylab = 'Meteoritos encontrados', t='l')
+plot(year, log10(x), xlab = 'Ano', ylab = 'Meteoritos encontrados', t='p')
 otherVariable <- year ** 3
-model <- lm(x ~ year * otherVariable)
+model <- lm(log10(x) ~ year + otherVariable)
 lines(year, predict(model), col=3)
 legend(max(year) - 8, max(x) - 2, c("Dados", "Predição"),
-       col = c(9, 3), lty = c(1,1), bty = 'l')
+       col = c(9, 3), lty = c(1,1), bty = 'p')
 summary(year)
 summary(x)
 summary(model)
