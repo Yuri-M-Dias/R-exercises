@@ -30,16 +30,17 @@ cat("Saving graphics to: ", currentPwd, "\n", sep = "")
 
 #Functions
 readDimension <- function(element, position) {
-  if (is.null(element[[position]])) {
+  elementToRead <- element[[position]]
+  if (is.null(elementToRead)) {
     return(NA)
   }
-  return(trim(element[[position]]))
+  return(trim(elementToRead))
 }
 
 readData <- function(data, metaData, dataColumnsNames, numberOfColumns) {
   dataFrame <- data.frame(sapply(
-    1:numberOfColumns,
-    function(columnIndex) {
+    X = 1:numberOfColumns,
+    FUN = function(columnIndex) {
       cat("Variable:", dataColumnsNames[columnIndex],"\n", sep = " ")
       sapply(data, function(element)
         readDimension(element, columnIndex))
@@ -52,7 +53,7 @@ readData <- function(data, metaData, dataColumnsNames, numberOfColumns) {
   dataFrame$reclong <- as.numeric(dataFrame$reclong)
   dataFrame$mass <- as.numeric(dataFrame$'mass (g)')
   dataFrame$year <- as.Date(dataFrame$year)
-  #Strips all rows with a single NA
+  # Strips all rows with a NA
   dataFrame <- dataFrame[complete.cases(dataFrame),]
   return(dataFrame)
 }
@@ -74,8 +75,8 @@ numberOfColumns <- length(dataColumns) - 1
 
 # do the extraction and assembly
 dataColumnsNames <- unlist(sapply(
-  1:numberOfColumns,
-  function(element) {
+  X = 1:numberOfColumns,
+  FUN = function(element) {
     return(dataColumns[[element]]$name)
   })
 )
@@ -97,7 +98,12 @@ coordinates(formatedData$coordinates) <- ~reclong + reclat
 biggerMeteorites <- formatedData$mass > 5000
 plot(worldShape)
 pointsSize <- biggerMeteorites / max(biggerMeteorites)
-points(formatedData$coordinates[biggerMeteorites,], col=3, pch=19, cex=pointsSize)
+points(
+  x = formatedData$coordinates[biggerMeteorites,],
+  col=3,
+  pch=19,
+  cex=pointsSize
+)
 # O plano é fazer isso de acordo com a massa
 
 # Segundo plot: boxplot de acordo algumas classes agrupadas por número de vezes que apareceram
@@ -110,8 +116,10 @@ aggregatedClasses <- aggregate(
 )
 orderedAggregatedClasses <- aggregatedClasses[order(aggregatedClasses$x, decreasing = TRUE),]
 tenMostCommonClasses <- head(orderedAggregatedClasses, 10)
-classBarPlot <- barplot(tenMostCommonClasses$x, names.arg=tenMostCommonClasses$class,
-        horiz = T, space = 0.1, main = "Classes mais comuns de meteoritos encontradas")
+classBarPlot <- barplot(
+  height = tenMostCommonClasses$x, names.arg=tenMostCommonClasses$class,
+  horiz = T, space = 0.1, main = "Classes mais comuns de meteoritos encontradas"
+)
 text(0, classBarPlot, labels = tenMostCommonClasses$x, cex=.8, pos=4)
 
 # Terceiro plot: meteoritos pela média de tamanho/classe
@@ -139,8 +147,10 @@ plot(year, log10(x), xlab = 'Ano', ylab = 'Meteoritos encontrados', t='p')
 otherVariable <- year ** 3
 model <- lm(log10(x) ~ year + otherVariable)
 lines(year, predict(model), col=3)
-legend(max(year) - 8, max(x) - 2, c("Dados", "Predição"),
-       col = c(9, 3), lty = c(1,1), bty = 'p')
+legend(
+  max(year) - 8, max(x) - 2, c("Dados", "Predição"),
+  col = c(9, 3), lty = c(1,1), bty = 'p'
+)
 summary(year)
 summary(x)
 summary(model)
