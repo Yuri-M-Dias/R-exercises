@@ -42,8 +42,7 @@ readData <- function(data, metaData, dataColumnsNames, numberOfColumns) {
     X = 1:numberOfColumns,
     FUN = function(columnIndex) {
       cat("Variable:", dataColumnsNames[columnIndex],"\n", sep = " ")
-      sapply(data, function(element)
-        readDimension(element, columnIndex))
+      sapply(data, function(element) readDimension(element, columnIndex))
     }),
     stringsAsFactors = FALSE
   )
@@ -91,12 +90,13 @@ hist(normalizedMassData)
 boxplot(massData, outline = F)
 
 # Primeiro plot: Localização geográfica das quedas
-#pdf("plot1.pdf")
+par(mfrow = c(1,1))
+pdf("plots/plot1.pdf")
 formatedData$coordinates = formatedData[c("reclong", "reclat")]
 coordinates(formatedData$coordinates) <- ~reclong + reclat
 
 biggerMeteorites <- formatedData$mass > 5000
-plot(worldShape)
+plot(worldShape, main = "Localização dos meteoritos")
 pointsSize <- biggerMeteorites / max(biggerMeteorites)
 points(
   x = formatedData$coordinates[biggerMeteorites,],
@@ -104,10 +104,10 @@ points(
   pch=19,
   cex=pointsSize
 )
-# O plano é fazer isso de acordo com a massa
+dev.off()
 
 # Segundo plot: boxplot de acordo algumas classes agrupadas por número de vezes que apareceram
-#pdf("plot2.pdf")
+pdf("plots/plot2.pdf")
 classes <- unique(formatedData$recclass)
 aggregatedClasses <- aggregate(
   formatedData$recclass,
@@ -121,17 +121,10 @@ classBarPlot <- barplot(
   horiz = T, space = 0.1, main = "Classes mais comuns de meteoritos encontradas"
 )
 text(0, classBarPlot, labels = tenMostCommonClasses$x, cex=.8, pos=4)
-
-# Terceiro plot: meteoritos pela média de tamanho/classe
-#pdf("plot3.pdf")
-aggregatedClassByMass <- aggregate(
-  x = formatedData,
-  by = list(class = formatedData$recclass, mass = formatedData$mass),
-  FUN = mean
-)
+dev.off()
 
 # Aqui tem o código do exercício 3
-#pdf("plot4.pdf")
+pdf("plots/plot3.pdf")
 years <- formatedData$year
 aggregatedYears <- aggregate(
   x = years,
@@ -143,7 +136,12 @@ aggregatedYears <- subset(aggregatedYears, year < 2012 & year > 1985)
 
 attach(aggregatedYears)
 
-plot(year, log10(x), xlab = 'Ano', ylab = 'Meteoritos encontrados', t='p')
+plot(
+  year, log10(x),
+  xlab = 'Ano', ylab = 'Meteoritos encontrados',
+  t='p',
+  main = 'Meteoritos encontrados entre 1985 e 2012'
+)
 otherVariable <- year ** 3
 model <- lm(log10(x) ~ year + otherVariable)
 lines(year, predict(model), col=3)
@@ -156,3 +154,5 @@ summary(x)
 summary(model)
 
 detach(aggregatedYears)
+
+dev.off()
