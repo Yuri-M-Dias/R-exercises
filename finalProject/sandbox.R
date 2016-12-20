@@ -58,7 +58,14 @@ readData <- function(data, metaData, dataColumnsNames, numberOfColumns) {
 }
 
 normalizeVector <- function(dataVector) {
-  normalizedData <- (dataVector - min(dataVector)) / (max(dataVector)-min(dataVector))
+  normalizedData <- (dataVector - min(dataVector)) / (max(dataVector)-min(dataVector)) 
+  return(normalizedData)
+}
+
+normalizePointsVector <- function(dataVector, min.symbol.size, max.symbol.size) {
+  normalizedData <- (
+    dataVector - min(dataVector)) / (max(dataVector)-min(dataVector)
+  ) * (max.symbol.size - min.symbol.size) + min.symbol.size
   return(normalizedData)
 }
 
@@ -83,27 +90,29 @@ formatedData <- readData(meteoritesData, metaData, dataColumnsNames, numberOfCol
 worldShape <- readShapePoly("data/world-50m/ne_50m_admin_0_countries.shp")
 cat("Data file read with success\n")
 
-massData <- formatedData$mass
-normalizedMassData <- normalizeVector(massData)
-summary(normalizedMassData)
-hist(normalizedMassData)
-boxplot(massData, outline = F)
+par(mfrow = c(1,1))
+# Plot 0?
+# massData <- formatedData$mass
+# normalizedMassData <- normalizeVector(massData)
+# summary(normalizedMassData)
+# hist(normalizedMassData)
+# boxplot(massData, outline = F)
 
 # Primeiro plot: Localização geográfica das quedas
-par(mfrow = c(1,1))
 pdf("plots/plot1.pdf")
 formatedData$coordinates = formatedData[c("reclong", "reclat")]
 coordinates(formatedData$coordinates) <- ~reclong + reclat
 
-biggerMeteorites <- formatedData$mass > 5000
-plot(worldShape, main = "Localização dos meteoritos")
-pointsSize <- biggerMeteorites / max(biggerMeteorites)
+meteoritesBiggerThan <- formatedData$mass > 1000
+meteoritesResultBigger <- formatedData[meteoritesBiggerThan,]
+meteoritesResultCoordinates <- meteoritesResultBigger$coordinates
+pointsSize <- normalizePointsVector(meteoritesResultBigger$mass, 0.3, 3)
+plot(worldShape, main = "Localização dos meteoritos no globo")
 points(
-  x = formatedData$coordinates[biggerMeteorites,],
-  col=3,
-  pch=19,
-  cex=pointsSize
+  x = meteoritesResultCoordinates,
+  col=3, pch=19, cex=pointsSize
 )
+
 dev.off()
 
 # Segundo plot: boxplot de acordo algumas classes agrupadas por número de vezes que apareceram
@@ -117,10 +126,12 @@ aggregatedClasses <- aggregate(
 orderedAggregatedClasses <- aggregatedClasses[order(aggregatedClasses$x, decreasing = TRUE),]
 tenMostCommonClasses <- head(orderedAggregatedClasses, 10)
 classBarPlot <- barplot(
-  height = tenMostCommonClasses$x, names.arg=tenMostCommonClasses$class,
-  horiz = T, space = 0.1, main = "Classes mais comuns de meteoritos encontradas"
+  height = tenMostCommonClasses$x, names.arg = tenMostCommonClasses$class,
+  horiz = T, space = 0.1, main = "Classes mais comuns de meteoritos encontradas",
+  ylim = c(0,11) 
 )
 text(0, classBarPlot, labels = tenMostCommonClasses$x, cex=.8, pos=4)
+
 dev.off()
 
 # Aqui tem o código do exercício 3
