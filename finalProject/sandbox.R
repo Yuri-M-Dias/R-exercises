@@ -1,17 +1,9 @@
-# Sandbox for testing the project, with various helpful links
-# Data comes from: https://data.nasa.gov/Space-Science/Meteorite-Landings/gh4g-9sfh
-# Tutorial on reading from an Open Data Portal:
-# http://zevross.com/blog/2015/02/12/using-r-to-download-and-parse-json-an-example-using-data-from-an-open-data-portal/
-
 # Dependencies
 # Reads json
 library("rjson")
 # Trim function(removes spaces)
 library("gdata")
-# Some more read options
-#library("rgdal")
 # better graphics, supposedly
-#library("ggplot2")
 library("maptools")
 
 # Constants
@@ -91,15 +83,9 @@ worldShape <- readShapePoly("data/world-50m/ne_50m_admin_0_countries.shp")
 cat("Data file read with success\n")
 
 par(mfrow = c(1,1))
-# Plot 0?
-# massData <- formatedData$mass
-# normalizedMassData <- normalizeVector(massData)
-# summary(normalizedMassData)
-# hist(normalizedMassData)
-# boxplot(massData, outline = F)
 
 # Primeiro plot: Localização geográfica das quedas
-pdf("plots/plot1.pdf")
+pdf("plots/plot1.pdf", width = 12)
 formatedData$coordinates = formatedData[c("reclong", "reclat")]
 coordinates(formatedData$coordinates) <- ~reclong + reclat
 
@@ -107,10 +93,22 @@ meteoritesBiggerThan <- formatedData$mass > 1000
 meteoritesResultBigger <- formatedData[meteoritesBiggerThan,]
 meteoritesResultCoordinates <- meteoritesResultBigger$coordinates
 pointsSize <- normalizePointsVector(meteoritesResultBigger$mass, 0.3, 3)
-plot(worldShape, main = "Localização dos meteoritos no globo")
+
+plot(
+  worldShape,
+  xlim = c(-90, 150), ylim = c(-90, 120),
+  main = "Massa dos meteoritos encontrados pelo globo, em kg"
+)
 points(
   x = meteoritesResultCoordinates,
   col=3, pch=19, cex=pointsSize
+)
+maxMeteorites <- format(max(meteoritesResultBigger$mass)/1000, scientific = FALSE)
+minMeteorites <- format(min(meteoritesResultBigger$mass)/1000, scientific = FALSE)
+legend(
+  x = 180, y = 45,
+  legend = c(minMeteorites, maxMeteorites),
+  pch = 16, col = 3, bty = 'n', pt.cex = c(0.3, 3)
 )
 
 dev.off()
@@ -160,9 +158,9 @@ legend(
   max(year) - 8, max(x) - 2, c("Dados", "Predição"),
   col = c(9, 3), lty = c(1,1), bty = 'p'
 )
-summary(year)
-summary(x)
-summary(model)
+# summary(year)
+# summary(x)
+# summary(model)
 
 detach(aggregatedYears)
 
